@@ -26,7 +26,8 @@
 	</div>
 
 	<div class="row">
-		<div class="col-md-6">
+		<div class="col-md-1"></div>
+		<div class="col-md-5">
 			<div id="activityName">
 			<strong>Horas Logueadas por Actividad</strong>
 		    <span class="reset" style="display: none;">Seleccionado: <span class="filter"></span></span>
@@ -34,17 +35,17 @@
 		    <div class="clearfix"></div>
 			</div>
 		</div>
-
-		<div class="col-md-6">
-			<div id="time">
-				<strong>Cantidad de logs de hora por duración</strong>
-			    <span class="reset" style="display: none;">Seleccionado: <span class="filter"></span></span>
-			    <a class="reset" href="javascript:timeChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
-			    <div class="clearfix"></div>
+		<div class="col-md-5">
+			<div id="avg-chart">
+				<strong>Cantidad de horas loggeadas por día</strong>
+		    	<span class="reset" style="display: none;">Seleccionado: <span class="filter"></span></span>
+		    	<a class="reset" href="javascript:weekChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+		    	<div class="clearfix"></div>
 			</div>
 		</div>
+		<div class="col-md-1"></div>
 	</div>
-	
+
 
 	 <div>
      	<div class="dc-data-count">
@@ -58,7 +59,7 @@
 	<script>
 
 		var activityNameChart = dc.rowChart("#activityName"), 
-			timeChart = dc.rowChart("#time"),
+			weekChart = dc.rowChart("#time"),
 			visCount = dc.dataCount(".dc-data-count"),
 			visTable = dc.dataTable(".dc-data-table");
 
@@ -67,17 +68,16 @@
 
 			var activityNameDim = ndx.dimension(function (d) {
 				return d["activity_name"];
-			})
-			var timeDim = ndx.dimension(function (d) {
-				return d["time"];
-			})
-			var dataDim = ndx.dimension(function (d) {
-				return d.Timestamp;
-			})
+			});
+			var weekDim = ndx.dimension(function (d) {
+				return d["week_day"];
+			});
+			var dateDim = ndx.dimension(function (d) {
+				return d["date"];
+			});
 
 			var activityNameGroup = activityNameDim.group();
-			var timeGroup = timeDim.group();
-			var dataGroup = dataDim.group();
+			var weekGroup = weekDim.group().reduceSum(function (d) { return d.time.avg;});
 
 			activityNameChart
 				.height(250)
@@ -85,10 +85,10 @@
 				.group(activityNameGroup)
 				.elasticX(true);
 
-			timeChart
+			weekChart
 				.height(250)
-				.dimension(timeDim)
-				.group(timeGroup)
+				.dimension(weekDim)
+				.group(weekGroup)
 				.elasticX(true);
 
 			visCount
@@ -96,17 +96,47 @@
 				.group(all);
 
 			visTable
-				.dimension(dataDim)
+				.dimension(dateDim)
 				.group(function (d) {
 		            var format = d3.format('02d');
-		            return d.date.getFullYear() + '/' + format((d.date.getMonth() + 1));
+		            return (new Date(d.date)).getFullYear() + '/' + format(((new Date(d.date)).getMonth() + 1));
 		        })
+		        .size(890)
 				.columns([
-					"id",
 					"activity_name",
 					"time",
 					"date",
 					"week_day"]);
+
+			var avgChart = dc.rowChart("#avg-chart")
+
+			var weekAvgDim = ndx.dimension(function (d) {
+				return d["week_day"];
+			});
+			var weekAvgGroup = weekAvgDim.group().reduce(reduceAdd, reduceRemove, reduceInitial);
+
+			function reduceAdd(p, v) {
+			  ++p.count;
+			  p.total += v.time;
+			  return p;
+			}
+
+			function reduceRemove(p, v) {
+			  --p.count;
+			  p.total -= v.time;
+			  return p;
+			}
+
+			function reduceInitial() {
+			  return {count: 0, total: 0};
+			}
+
+			avgChart
+				.height(250)
+				.dimension(weekAvgDim)
+				.group(weekAvgGroup)
+				.elasticX(true)
+				.valueAccessor(function(p) { return p.value.count > 0 ? p.value.total / p.value.count : 0; });
 
 			dc.renderAll();
 	</script>
