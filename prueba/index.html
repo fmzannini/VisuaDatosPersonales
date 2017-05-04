@@ -18,7 +18,7 @@
 
 		var activityNameChart = dc.rowChart("#activityName");
 
-		d3.csv("data.csv", function (err, data) {
+		d3.csv("http://localhost:8000/data.csv", function (err, data) {
 			//activity_name;time;date;week_day
 			if (err) throw err;
 

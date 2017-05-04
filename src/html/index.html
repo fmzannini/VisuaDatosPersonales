@@ -7,6 +7,7 @@
 	<script src="../js/crossfilter.js"></script>
 	<script src="../js/d3.js"></script>
 	<script src="../js/dc.js"></script>
+	<script src="../js/data.js"></script>
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
@@ -61,15 +62,6 @@
 			visCount = dc.dataCount(".dc-data-count"),
 			visTable = dc.dataTable(".dc-data-table");
 
-		d3.csv("../../data/data.csv", function (err, data) {
-			//activity_name, time, date, week_day
-			if (err) throw err;
-
-			var dateFormat = d3.time.format('%d/%m/%Y');
-			data.forEach(function (d) {
-				d.date = new Date(d.date);
-			});
-
 			var ndx = crossfilter(data);
 			var all = ndx.groupAll();
 
@@ -117,7 +109,6 @@
 					"week_day"]);
 
 			dc.renderAll();
-		});
 	</script>
 </body>
 </html>
