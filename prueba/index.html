@@ -1,0 +1,42 @@
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>TP Datos Personales - Franco Michel Zannini</title>
+
+	<link rel="stylesheet" href="dc.css">
+</head>
+<body>
+	<h1>TP Datos Personales - Franco Michel Zannini</h1>
+
+	<div id="activityName"></div>
+
+	<script src="crossfilter.js"></script>
+	<script src="d3.js"></script>
+	<script src="dc.js"></script>
+
+	<script>
+
+		var activityNameChart = dc.rowChart("#activityName");
+
+		d3.csv("data.csv", function (err, data) {
+			//activity_name;time;date;week_day
+			if (err) throw err;
+
+			var ndx = crossfilter(data);
+			var all = ndx.groupAll();
+
+			var activityNameDim = ndx.dimension(function (d) { return d["activity_name"]; });
+			var weekDayDim = ndx.dimension(function (d) { return d["week_day"]; });
+
+			var activityNameGroup = activityNameDim.group();
+			var weekDayGroup = weekDayDim.group();
+
+			activityNameChart
+				.dimension(activityNameDim)
+				.group(activityNameGroup);
+
+			dc.renderAll();
+		});
+	</script>
+</body>
+</html>

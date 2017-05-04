@@ -1,0 +1,123 @@
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>TP Datos Personales - Franco Michel Zannini</title>
+
+	<link rel="stylesheet" href="../css/dc.css">
+	<script src="../js/crossfilter.js"></script>
+	<script src="../js/d3.js"></script>
+	<script src="../js/dc.js"></script>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+</head>
+<body>
+	<div class="page-header">
+  		<h1>Trabajo Práctico: Datos Personales <small> Franco Michel Zannini</small></h1>
+	</div>
+
+	<div class="row">
+		<div class="col-md-6">
+			<div id="activityName">
+			<strong>Horas Logueadas por Actividad</strong>
+		    <span class="reset" style="display: none;">Seleccionado: <span class="filter"></span></span>
+		    <a class="reset" href="javascript:activityNameChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+		    <div class="clearfix"></div>
+			</div>
+		</div>
+
+		<div class="col-md-6">
+			<div id="time">
+				<strong>Cantidad de logs de hora por duración</strong>
+			    <span class="reset" style="display: none;">Seleccionado: <span class="filter"></span></span>
+			    <a class="reset" href="javascript:timeChart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+			    <div class="clearfix"></div>
+			</div>
+		</div>
+	</div>
+	
+
+	 <div>
+     	<div class="dc-data-count">
+          <span class="filter-count"></span> selected out of <span class="total-count"></span> records | <a
+              href="javascript:dc.filterAll(); dc.renderAll();">Reset All</a>
+    	</div>
+    </div>
+	<table class="table table-hover dc-data-table">
+    </table>
+
+	<script>
+
+		var activityNameChart = dc.rowChart("#activityName"), 
+			timeChart = dc.rowChart("#time"),
+			visCount = dc.dataCount(".dc-data-count"),
+			visTable = dc.dataTable(".dc-data-table");
+
+		d3.csv("../../data/data.csv", function (err, data) {
+			//activity_name, time, date, week_day
+			if (err) throw err;
+
+			var dateFormat = d3.time.format('%d/%m/%Y');
+			data.forEach(function (d) {
+				d.date = new Date(d.date);
+			});
+
+			var ndx = crossfilter(data);
+			var all = ndx.groupAll();
+
+			var activityNameDim = ndx.dimension(function (d) {
+				return d["activity_name"];
+			})
+			var timeDim = ndx.dimension(function (d) {
+				return d["time"];
+			})
+			var dataDim = ndx.dimension(function (d) {
+				return d.Timestamp;
+			})
+
+			var activityNameGroup = activityNameDim.group();
+			var timeGroup = timeDim.group();
+			var dataGroup = dataDim.group();
+
+			activityNameChart
+				.height(250)
+				.dimension(activityNameDim)
+				.group(activityNameGroup)
+				.elasticX(true);
+
+			timeChart
+				.height(250)
+				.dimension(timeDim)
+				.group(timeGroup)
+				.elasticX(true);
+
+			visCount
+				.dimension(ndx)
+				.group(all);
+
+			visTable
+				.dimension(dataDim)
+				.group(function (d) {
+		            var format = d3.format('02d');
+		            return d.date.getFullYear() + '/' + format((d.date.getMonth() + 1));
+		        })
+				.columns([
+					"id",
+					"activity_name",
+					"time",
+					"date",
+					"week_day"]);
+
+			dc.renderAll();
+		});
+	</script>
+</body>
+</html>
