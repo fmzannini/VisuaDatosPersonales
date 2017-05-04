@@ -1976,7 +1976,7 @@ var data = [
   {
     "activity_name": "Project Management",
     "time": 2,
-    "date": "",
+    "date": "01/29/16",
     "week_day": "Viernes"
   },
   {
