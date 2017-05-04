@@ -66,10 +66,12 @@ display: table;
 }
 
 h1{
-	font-size: 80px;
+	font-size: 60px;
 	color: #3f5160;
 	letter-spacing: -2px;
 	margin-bottom: 10px;
+	margin-left: 30px;
+	margin-right: 30px;
 }
 
 h1 span{
@@ -93,9 +95,10 @@ h1 span{
 }
 
 .content a{
-	color: #40B0E3;
-	border-bottom: 1px dotted #40B0E3;
+	color: #ffffff;
+	border-bottom: 1px dotted #ffffff;
 	text-decoration: none;
+	font-size: 16px;
 }
 
 .content a:hover{
