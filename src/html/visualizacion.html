@@ -85,34 +85,46 @@
 
 	<script>
 
-		var activityNameChart = dc.rowChart("#activityName"), 
+		/*var activityNameChart = dc.rowChart("#activityName"), 
 			avgChart = dc.rowChart("#avg-chart"),
 			piechart = dc.pieChart("#pie-chart"),
 			timeChart = dc.lineChart("#time-chart"),
 			visCount = dc.dataCount(".dc-data-count"),
-			visTable = dc.dataTable(".dc-data-table");
+			visTable = dc.dataTable(".dc-data-table");*/
+
+			var newLeadsChart = dc.rowChart("#activityName");
 
 			var ndx = crossfilter(data);
 			var all = ndx.groupAll();
 
-			var activityNameDim = ndx.dimension(function (d) {
+			var newLeadsDim = ndx.dimension(function (d) {
+				return d["Date Contacted"];
+			});
+
+
+			/*var activityNameDim = ndx.dimension(function (d) {
 				return d["activity_name"];
 			});
 			var weekAvgDim = ndx.dimension(function (d) {
 				return d["week_day"];
-			});
+			});*/
 			var dateDim = ndx.dimension(function (d) {
-				return d["date"];
+				return d["Date Contacted"];
 			});
+			/*
 			var activityAvgDim = ndx.dimension(function(d) {
 				return d["activity_name"];
 			});
 			var monthDim = ndx.dimension(function(d) {
 				return new Date(d.date);
-			});
+			});*/
 				
+			var newLeadsGroup = newLeadsDim.group(function (d) {
+				var format = d3.format('02d');
+		        return (new Date(d["Date Contacted"])).getFullYear() + '/' + format(((new Date(d["Date Contacted"])).getMonth() + 1));
+			});
 
-			var activityNameGroup = activityNameDim.group();
+			/*var activityNameGroup = activityNameDim.group();
 			var weekAvgGroup = weekAvgDim.group().reduce(reduceAdd, reduceRemove, reduceInitial);
 			function reduceAdd(p, v) {
 			  ++p.count;
@@ -134,6 +146,7 @@
 			var monthGroup = monthDim.group().reduceCount(function(d) { 
 				return new Date(d.date); 
 			});
+
 
 			activityNameChart
 				.height(250)
@@ -165,8 +178,8 @@
 			    .group(monthGroup)
 				.elasticY(true)
 			    .x(d3.time.scale().domain([new Date(2015, 9, 1), new Date(2017, 5, 31)]))
-			    .xAxis();
-
+			    .xAxis();*/
+/*
 			visCount
 				.dimension(ndx)
 				.group(all);
@@ -182,7 +195,14 @@
 					"activity_name",
 					"time",
 					"date",
-					"week_day"]);
+					"week_day"]);*/
+
+			newLeadsChart
+				.height(250)
+				.dimension(newLeadsDim)
+				.group(newLeadsGroup)
+				.elasticX(true)
+				.valueAccessor(function(p) { return p.value.count > 0 ? p.value.total / p.value.count : 0; });
 
 			dc.renderAll();
 	</script>
