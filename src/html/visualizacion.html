@@ -35,7 +35,7 @@
 	<div class="row">
 		<div class="col-md-2"></div>
 		<div class="col-md-4">
-			<div id="pie-chart">
+			<div id="activityName">
 				<h3><strong>Distribución de tareas</strong></h3>
 				<span class="reset" style="display: none;">Seleccionado: <span class="filter"></span></span>
 				<a class="reset" href="javascript:chart.filterAll();dc.redrawAll();" style="display: none;">reset</a>
@@ -85,7 +85,7 @@
 
 	<script>
 
-		/*var activityNameChart = dc.rowChart("#activityName"), 
+		/*var activityNameChart = dc.rowChart("#activityName"),
 			avgChart = dc.rowChart("#avg-chart"),
 			piechart = dc.pieChart("#pie-chart"),
 			timeChart = dc.lineChart("#time-chart"),
@@ -100,7 +100,6 @@
 			var newLeadsDim = ndx.dimension(function (d) {
 				return d["Date Contacted"];
 			});
-
 
 			/*var activityNameDim = ndx.dimension(function (d) {
 				return d["activity_name"];
@@ -118,10 +117,11 @@
 			var monthDim = ndx.dimension(function(d) {
 				return new Date(d.date);
 			});*/
-				
+
 			var newLeadsGroup = newLeadsDim.group(function (d) {
 				var format = d3.format('02d');
-		        return (new Date(d["Date Contacted"])).getFullYear() + '/' + format(((new Date(d["Date Contacted"])).getMonth() + 1));
+				if (!d) return "";
+		    return (new Date(d)).getFullYear() + '/' + format(((new Date(d)).getMonth() + 1));
 			});
 
 			/*var activityNameGroup = activityNameDim.group();
@@ -141,10 +141,10 @@
 			}
 
 			var activityAvgGroup = activityAvgDim.group().reduceSum(function(d) {
-				return d.time; 
+				return d.time;
 			});
-			var monthGroup = monthDim.group().reduceCount(function(d) { 
-				return new Date(d.date); 
+			var monthGroup = monthDim.group().reduceCount(function(d) {
+				return new Date(d.date);
 			});
 
 
@@ -201,8 +201,7 @@
 				.height(250)
 				.dimension(newLeadsDim)
 				.group(newLeadsGroup)
-				.elasticX(true)
-				.valueAccessor(function(p) { return p.value.count > 0 ? p.value.total / p.value.count : 0; });
+				.elasticX(true);
 
 			dc.renderAll();
 	</script>
